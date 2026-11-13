@@ -1,0 +1,18 @@
+# The dockerized main application (plate capture and inference). It reports frame rate and inference
+# health to the platform daemon over /run/sfp/sfp.sock.
+[Unit]
+Description=Plate capture application
+Requires=docker.service sfp-agent.service
+After=docker.service sfp-agent.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker rm -f capture
+ExecStart=/usr/bin/docker run --rm --name capture --device /dev/video0 --device /dev/hailo0 \
+    -v /run/sfp:/run/sfp --memory 900m --oom-kill-disable=false registry.local/capture:${CAPTURE_VERSION}
+ExecStop=/usr/bin/docker stop -t 10 capture
+EnvironmentFile=/etc/sfp/capture.env
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

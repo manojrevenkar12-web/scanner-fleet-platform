@@ -1,0 +1,68 @@
+// What a device sends to the fleet backend over MQTT, and what apps send the platform daemon over IPC.
+// Field numbers are a contract: never reuse or renumber one; add new fields with new numbers.
+syntax = "proto3";
+
+package sfp.v1;
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  OK = 1;
+  DEGRADED = 2;
+  FAILING = 3;
+}
+
+message Check {
+  string name = 1;          // e.g. "memory", "modem", "camera", "watchdog"
+  Severity severity = 2;
+  double value = 3;         // the measured number the severity came from
+  string detail = 4;
+}
+
+message Health {
+  repeated Check checks = 1;
+  double memory_rss_mb = 2;
+  double memory_slope_mb_per_h = 3;  // fitted over the monitor's window; a leak shows up here first
+  uint32 restarts_last_hour = 4;
+  int32 modem_rssi_dbm = 5;
+  double camera_fps = 6;
+  uint32 outbox_depth = 7;
+}
+
+message ParkingEvents {
+  uint32 entries = 1;
+  uint32 exits = 2;
+  uint32 unread_plates = 3;
+}
+
+message OtaStatus {
+  string slot = 1;            // "a" or "b": the slot running now
+  string version = 2;
+  string pending_version = 3; // installed in the other slot, waiting for a healthy boot to commit
+  uint32 boot_attempts_left = 4;
+  string last_result = 5;     // committed, rolled_back, rejected_signature, rejected_compat, ...
+}
+
+message Envelope {
+  string device_id = 1;
+  uint64 seq = 2;             // per device, monotonic: the backend drops repeats and sees gaps
+  int64 observed_at_ms = 3;   // device clock when produced, not when sent
+  string device_type = 4;
+  string software_version = 5;
+  oneof body {
+    Health health = 10;
+    ParkingEvents events = 11;
+    OtaStatus ota = 12;
+    string log_line = 13;
+  }
+}
+
+message IpcRequest {
+  string method = 1;          // "health.report", "config.get", "log"
+  bytes payload = 2;
+}
+
+message IpcResponse {
+  bool ok = 1;
+  bytes payload = 2;
+  string error = 3;
+}

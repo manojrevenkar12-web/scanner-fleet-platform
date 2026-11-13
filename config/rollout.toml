@@ -1,0 +1,23 @@
+# The fleet's release process. The world never reads this.
+waves = [0.02, 0.1, 0.3, 1.0]        # cumulative share of each stratum (device type x board revision)
+soak_hours = 6                       # after a wave has installed, it runs this long before the next opens
+min_installed_share = 0.8            # share of the open waves that must have installed before the next opens
+max_bad_share = 0.05                 # after the canary: halt when more updated devices than this fail or roll back
+                                     # (in the canary wave a single failure or rollback halts the release)
+min_updated_for_gate = 5
+install_hours_utc = [1, 5]          # devices install at night, at a time spread across this window
+
+[diagnosis]
+leak_mb_per_hour = 4.0
+leak_min_points = 8
+crash_restarts = 3
+crash_min_points = 3
+camera_min_fps = 8.0
+camera_min_points = 8              # low while the site's other scanners see fine: the device, not the weather
+camera_min_points_alone = 32       # a scanner alone at its site must stay low this long (8 h)
+link_delay_minutes = 60              # telemetry arriving this late is a flaky uplink
+link_min_points = 4
+link_min_episodes = 3
+
+[disputes]
+window_minutes = 30                  # scanner health is checked this long either side of the claimed exit

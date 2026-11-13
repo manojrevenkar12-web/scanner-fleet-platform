@@ -1,0 +1,52 @@
+# The held-out fleet: other seed, dates, board mix, faults and releases. Run once, after the design
+# is frozen: python scripts/evaluate.py --heldout. Its numbers are reported as they come out.
+#
+# The simulated fleet: sites, devices, the faults they will suffer, and the releases shipped to them.
+# This is the world. The platform and the fleet backend never read it; only scripts/evaluate.py
+# compares what they did with what really happened here.
+name = "heldout"
+seed = 47
+start = "2026-11-02"
+days = 10
+tick_minutes = 15
+sites = 300
+regions = ["north", "south", "east", "west"]
+scanners_per_site = [1, 4]           # uniform, inclusive
+gateway_share = 0.2                  # sites that also run an x86 gateway
+hardware_revisions = { r1 = 0.55, r2 = 0.35, r3 = 0.1 }   # scanner-arm boards
+base_rss_mb = { scanner-arm = 310, gateway-x86 = 520 }
+vehicles_per_scanner_day = 240
+genuine_overstay_share = 0.004       # sessions that really overstay and are rightly fined
+dispute_share_wrong = 0.6            # wrongly fined drivers who dispute
+dispute_share_right = 0.25           # rightly fined drivers who dispute anyway
+reboot_minutes = 10
+site_visit_hours = 48                # a bricked device waits this long for a technician
+
+[network]
+flaky_site_share = 0.12
+flaky_outage_per_hour = 0.05
+flaky_outage_hours = [1, 8]
+lost_ack_share = 0.01                # on flaky links: delivered, but the PUBACK never came back
+regional_outage = { region = "west", start = "2026-11-05T14:00:00Z", hours = 7 }
+
+[faults]
+rss_noise_mb = 8                     # normal memory jitter between samples
+rain_per_site_day = 0.45              # rain dims every camera at a site for a few hours
+rain_hours = [1, 5]
+rain_fps_factor = [0.45, 0.8]
+leak_share = 0.05                    # scanners whose capture process leaks (camera firmware)
+leak_mb_per_hour = [2, 14]           # the slowest stay under the diagnosis threshold
+dirty_camera_share = 0.025            # lens dirt: frame rate falls over days, plates go unread
+crash_loop_share = 0.01             # devices with a bad site config that crashes the app every few minutes
+corrupt_download_share = 0.02        # downloads that arrive damaged (3x on flaky links)
+
+[[releases]]
+version = "1.6.0"
+at = "2026-11-04T09:00:00Z"
+broken_on = ["r3"]                   # only one board in ten: a canary has to be stratified to catch it
+
+[[releases]]
+version = "1.6.1"
+at = "2026-11-08T09:00:00Z"
+broken_on = []
+wrong_arch_until = "2026-11-09T12:00:00Z"

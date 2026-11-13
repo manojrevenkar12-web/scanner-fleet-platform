@@ -1,0 +1,7 @@
+{
+  "health_report_us": 25.5,
+  "ingest_messages": 672000,
+  "ingest_messages_per_s": 112941,
+  "fleet_day_ingest_s": 5.9,
+  "message_bytes": 163
+}

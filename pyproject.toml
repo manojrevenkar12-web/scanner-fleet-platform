@@ -1,0 +1,28 @@
+[project]
+name = "scanner-fleet-platform"
+version = "0.1.0"
+description = "Python platform layer for a fleet of Linux edge devices: health, logging, config, signed A/B OTA, watchdog, MQTT + Protobuf telemetry, hardware plugins."
+requires-python = ">=3.11"
+dependencies = ["protobuf>=5.26", "paho-mqtt>=2.0", "cryptography>=42", "psutil>=5.9"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5", "amqtt>=0.11", "grpcio-tools>=1.62"]
+
+[project.scripts]
+sfp-agent = "sfp.platform.agent:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+extend-exclude = ["src/sfp/proto/telemetry_pb2.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

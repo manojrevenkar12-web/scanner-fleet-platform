@@ -1,0 +1,32 @@
+# The platform daemon. systemd restarts it if it stops pinging the watchdog; the hardware watchdog
+# (RuntimeWatchdogSec in system.conf) resets the board if systemd itself stops.
+[Unit]
+Description=Scanner fleet platform daemon
+Wants=network-online.target ModemManager.service
+After=network-online.target ModemManager.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/sfp-agent --device-id %H --device-type ${SFP_DEVICE_TYPE} --mqtt ${SFP_MQTT_URL}
+EnvironmentFile=/etc/sfp/agent.env
+WatchdogSec=60
+Restart=on-failure
+RestartSec=5
+# three crashes in ten minutes on an uncommitted slot: reboot and let the bootloader decide
+StartLimitIntervalSec=600
+StartLimitBurst=3
+StartLimitAction=reboot
+StateDirectory=sfp
+User=sfp
+Group=sfp
+SupplementaryGroups=video dialout
+DeviceAllow=/dev/watchdog rw
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+# Device types. Each lists the hardware the platform abstracts; the same platform runs on all of them.
+
+[types.scanner-arm]
+arch = "arm64"
+hardware = ["modem", "watchdog", "camera", "accelerator"]
+memory_limit_mb = 900
+
+[types.gateway-x86]
+arch = "amd64"
+hardware = ["modem", "watchdog"]
+memory_limit_mb = 1800

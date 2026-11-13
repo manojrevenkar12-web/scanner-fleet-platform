@@ -1,0 +1,2 @@
+{"modem": {"generic": {"state": "connected", "access-technologies": ["lte"], "signal-quality": {"value": "61"}},
+           "signal": {"lte": {"rssi": "-81.00", "rsrp": "-108.00", "rsrq": "-11.00"}, "5g": {"rssi": "--"}}}}

@@ -1,0 +1,30 @@
+# How the platform layer behaves on every device. Device types add or override values in devices.toml.
+
+[health]
+window_minutes = 360            # memory slope is fitted over this window; shorter windows mistake jitter for leaks
+memory_leak_mb_per_hour = 4.0   # a sustained slope above this is a leak
+memory_failing_share = 0.9      # RSS above this share of the limit is failing
+min_camera_fps = 8.0
+weak_signal_dbm = -105
+restarts_failing_per_hour = 3
+
+[outbox]
+capacity = 2000                 # messages kept on the device while the uplink is down
+batch = 200                     # messages sent per flush
+
+[ota]
+boot_attempts = 3               # boots a new slot gets to report healthy before the bootloader falls back
+healthy_minutes_to_commit = 30  # a new version is committed only after this long healthy
+
+[log]
+burst = 20                      # lines per key and minute before suppression
+
+# What the platform guarantees. scripts/evaluate.py switches each one off in turn, and all of them off
+# for "first version", on the same fleet and the same faults, to show what each is worth.
+[guarantees]
+store_and_forward = true        # telemetry waits on the device through uplink outages
+ab_updates = true               # install into the other slot; the bootloader falls back on its own
+verify_bundles = true           # signature, payload hash, device type and architecture checked before install
+staged_rollout = true           # canary waves gated on fleet health, halted and reverted on regression
+fleet_diagnosis = true          # leaks, flaky links, crash loops and dirty cameras named from telemetry
+dispute_device_check = true     # a parking-fine dispute checks scanner health around the missing exit

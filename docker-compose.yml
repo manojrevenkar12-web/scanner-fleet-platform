@@ -1,0 +1,16 @@
+# Three devices of two architectures' worth of software, a real broker, and the platform daemon on each.
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    command: mosquitto -c /mosquitto-no-auth.conf
+    ports: ["1883:1883"]
+  scanner-1:
+    build: { context: ., target: runtime }
+    command: ["--device-id", "scanner-1", "--device-type", "scanner-arm", "--hardware", "sim",
+              "--mqtt", "mqtt://broker:1883", "--interval", "5", "--state-dir", "/var/lib/sfp"]
+    depends_on: [broker]
+  gateway-1:
+    build: { context: ., target: runtime }
+    command: ["--device-id", "gateway-1", "--device-type", "gateway-x86", "--hardware", "sim",
+              "--mqtt", "mqtt://broker:1883", "--interval", "5", "--state-dir", "/var/lib/sfp"]
+    depends_on: [broker]
